@@ -4,6 +4,13 @@ import (
 	"log"
 )
 
+const (
+	VC_TYPE  = "TYPE"
+	VC_WORK  = "WORK"
+	VC_HOME  = "HOME"
+	VC_VOICE = "VOICE"
+)
+
 type VCard struct {
 	UID string
 	// ProductID refers to the Property PRODID
@@ -152,7 +159,7 @@ func (vcard *VCard) ReadFrom(di *DirectoryInfoReader) {
 			vcard.NickNames = contentLine.Value.GetTextList()
 		case "PHOTO":
 			vcard.Photo.Encoding = contentLine.Params["ENCODING"].GetText()
-			vcard.Photo.Type = contentLine.Params["TYPE"].GetText()
+			vcard.Photo.Type = contentLine.Params[VC_TYPE].GetText()
 			vcard.Photo.Value = contentLine.Params["VALUE"].GetText()
 			vcard.Photo.Data = contentLine.Value.GetAllText()
 		case "BDAY":
@@ -168,7 +175,7 @@ func (vcard *VCard) ReadFrom(di *DirectoryInfoReader) {
 		case "ADR":
 			if len(contentLine.Value) == addressSize {
 				var address Address
-				if param, ok := contentLine.Params["TYPE"]; ok {
+				if param, ok := contentLine.Params[VC_TYPE]; ok {
 					address.Type = param
 				}
 				// TODO: fill address.Label member, if param LABEL is defined
@@ -187,16 +194,16 @@ func (vcard *VCard) ReadFrom(di *DirectoryInfoReader) {
 			vcard.XABuid = contentLine.Value.GetText()
 		case "TEL":
 			var tel Telephone
-			if param, ok := contentLine.Params["type"]; ok {
+			if param, ok := contentLine.Params[VC_TYPE]; ok {
 				tel.Type = param
 			} else {
-				tel.Type = []string{"voice"}
+				tel.Type = []string{VC_VOICE}
 			}
 			tel.Number = contentLine.Value.GetText()
 			vcard.Telephones = append(vcard.Telephones, tel)
 		case "EMAIL":
 			var email Email
-			if param, ok := contentLine.Params["type"]; ok {
+			if param, ok := contentLine.Params[VC_TYPE]; ok {
 				email.Type = param
 			}
 			email.Address = contentLine.Value.GetText()
@@ -216,7 +223,7 @@ func (vcard *VCard) ReadFrom(di *DirectoryInfoReader) {
 		case "X-JABBER":
 		case "X-GTALK":
 			var jabber XJabber
-			if param, ok := contentLine.Params["type"]; ok {
+			if param, ok := contentLine.Params[VC_TYPE]; ok {
 				jabber.Type = param
 			}
 			jabber.Address = contentLine.Value.GetText()
@@ -224,7 +231,7 @@ func (vcard *VCard) ReadFrom(di *DirectoryInfoReader) {
 		case "X-SKYPE":
 		case "X-SKYPE-USERNAME":
 			var skype XSkype
-			if param, ok := contentLine.Params["type"]; ok {
+			if param, ok := contentLine.Params[VC_TYPE]; ok {
 				skype.Type = param
 			}
 			skype.Address = contentLine.Value.GetText()
@@ -332,7 +339,7 @@ func (photo *Photo) WriteTo(di *DirectoryInfoWriter) {
 		params["ENCODING"] = Value{photo.Encoding}
 	}
 	if photo.Type != "" {
-		params["type"] = Value{photo.Type}
+		params[VC_TYPE] = Value{photo.Type}
 	}
 	if photo.Value != "" {
 		params["VALUE"] = Value{photo.Value}
@@ -345,30 +352,30 @@ func (photo *Photo) WriteTo(di *DirectoryInfoWriter) {
 
 func (addr *Address) WriteTo(di *DirectoryInfoWriter) {
 	params := make(map[string]Value)
-	params["type"] = addr.Type
+	params[VC_TYPE] = addr.Type
 	di.WriteContentLine(&ContentLine{"", "ADR", params, StructuredValue{Value{addr.PostOfficeBox}, Value{addr.ExtendedAddress}, Value{addr.Street}, Value{addr.Locality}, Value{addr.Region}, Value{addr.PostalCode}, Value{addr.CountryName}}})
 }
 
 func (tel *Telephone) WriteTo(di *DirectoryInfoWriter) {
 	params := make(map[string]Value)
-	params["type"] = tel.Type
+	params[VC_TYPE] = tel.Type
 	di.WriteContentLine(&ContentLine{"", "TEL", params, StructuredValue{Value{tel.Number}}})
 }
 
 func (email *Email) WriteTo(di *DirectoryInfoWriter) {
 	params := make(map[string]Value)
-	params["type"] = email.Type
+	params[VC_TYPE] = email.Type
 	di.WriteContentLine(&ContentLine{"", "EMAIL", params, StructuredValue{Value{email.Address}}})
 }
 
 func (jab *XJabber) WriteTo(di *DirectoryInfoWriter) {
 	params := make(map[string]Value)
-	params["type"] = jab.Type
+	params[VC_TYPE] = jab.Type
 	di.WriteContentLine(&ContentLine{"", "X-JABBER", params, StructuredValue{Value{jab.Address}}})
 }
 
 func (skype *XSkype) WriteTo(di *DirectoryInfoWriter) {
 	params := make(map[string]Value)
-	params["type"] = skype.Type
+	params[VC_TYPE] = skype.Type
 	di.WriteContentLine(&ContentLine{"", "X-SKYPE", params, StructuredValue{Value{skype.Address}}})
 }
