@@ -263,8 +263,6 @@ func (vcard *VCard) ReadFrom(di *DirectoryInfoReader) {
 			vcard.UID = contentLine.Value.GetText()
 		case "REV":
 			vcard.Revision = contentLine.Value.GetText()
-		default:
-			log.Printf("Not read %s, %s: %s\n", contentLine.Group, contentLine.Name, contentLine.Value)
 		}
 		contentLine = di.ReadContentLine()
 	}
