@@ -67,10 +67,6 @@ type Photo struct {
 	Data     string
 }
 
-func defaultAddressTypes() (types []string) {
-	return []string{"Intl", "Postal", "Parcel", "Work"}
-}
-
 type DataType interface {
 	GetType() []string
 	HasType(t string) bool
@@ -174,9 +170,8 @@ func (vcard *VCard) ReadFrom(di *DirectoryInfoReader) {
 				var address Address
 				if param, ok := contentLine.Params["TYPE"]; ok {
 					address.Type = param
-				} else {
-					address.Type = defaultAddressTypes()
 				}
+				// TODO: fill address.Label member, if param LABEL is defined
 				address.PostOfficeBox = contentLine.Value[postOfficeBox].GetText()
 				address.ExtendedAddress = contentLine.Value[extendedAddress].GetText()
 				address.Street = contentLine.Value[street].GetText()
@@ -203,8 +198,6 @@ func (vcard *VCard) ReadFrom(di *DirectoryInfoReader) {
 			var email Email
 			if param, ok := contentLine.Params["type"]; ok {
 				email.Type = param
-			} else {
-				email.Type = []string{"HOME"}
 			}
 			email.Address = contentLine.Value.GetText()
 			vcard.Emails = append(vcard.Emails, email)
@@ -225,8 +218,6 @@ func (vcard *VCard) ReadFrom(di *DirectoryInfoReader) {
 			var jabber XJabber
 			if param, ok := contentLine.Params["type"]; ok {
 				jabber.Type = param
-			} else {
-				jabber.Type = []string{"HOME"}
 			}
 			jabber.Address = contentLine.Value.GetText()
 			vcard.XJabbers = append(vcard.XJabbers, jabber)
@@ -235,8 +226,6 @@ func (vcard *VCard) ReadFrom(di *DirectoryInfoReader) {
 			var skype XSkype
 			if param, ok := contentLine.Params["type"]; ok {
 				skype.Type = param
-			} else {
-				skype.Type = []string{"HOME"}
 			}
 			skype.Address = contentLine.Value.GetText()
 			vcard.XSkypes = append(vcard.XSkypes, skype)
