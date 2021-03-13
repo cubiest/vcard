@@ -93,6 +93,8 @@ func (di *DirectoryInfoReader) readParameters() (params map[string]Value) {
 		} else if c == '=' {
 			name = string(buf)
 			buf = []rune{}
+		} else if c == '"' {
+			// skip
 		} else {
 			buf = append(buf, c)
 		}

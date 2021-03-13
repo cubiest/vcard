@@ -9,7 +9,7 @@ type DirectoryInfoWriter struct {
 	writer io.Writer
 }
 
-//create a new DirectoryInfoWriter 
+//create a new DirectoryInfoWriter
 func NewDirectoryInfoWriter(writer io.Writer) *DirectoryInfoWriter {
 	return &DirectoryInfoWriter{writer}
 }
@@ -26,11 +26,17 @@ func (di *DirectoryInfoWriter) WriteContentLine(contentLine *ContentLine) {
 			io.WriteString(di.writer, key)
 			if len(values) > 0 {
 				io.WriteString(di.writer, "=")
+				if len(values) > 1 {
+					io.WriteString(di.writer, "\"")
+				}
 				for vi := 0; vi < len(values); vi++ {
 					io.WriteString(di.writer, values[vi])
 					if vi+1 < len(values) {
 						io.WriteString(di.writer, ",")
 					}
+				}
+				if len(values) > 1 {
+					io.WriteString(di.writer, "\"")
 				}
 			}
 		}
@@ -50,12 +56,12 @@ func (di *DirectoryInfoWriter) WriteContentLine(contentLine *ContentLine) {
 	io.WriteString(di.writer, "\r\n")
 }
 
-// this function escape '\n' '\r' ';' ',' character with the '\\' character 
+// this function escape '\n' '\r' ';' ',' character with the '\\' character
 func (di *DirectoryInfoWriter) WriteValue(value string) {
 	i := 0
 	for _, c := range value {
 		if i == 76 {
-			// if line to long fold value on multiple line 
+			// if line to long fold value on multiple line
 			io.WriteString(di.writer, "\n  ")
 			i = 0
 		}
@@ -72,8 +78,8 @@ func (di *DirectoryInfoWriter) WriteValue(value string) {
 		case ',':
 			e = `\,`
 		default:
-			// c is an int representing a Unicode code point. 
-			// convert it to string (UTF-8 encoded character) 
+			// c is an int representing a Unicode code point.
+			// convert it to string (UTF-8 encoded character)
 			e = string(c)
 		}
 		io.WriteString(di.writer, e)
